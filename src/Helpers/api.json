@@ -1,0 +1,22 @@
+{
+  "products": [
+    {
+      "id": 1681175219762,
+      "name": "Lizard Interactive",
+      "generic": "Software Company",
+      "price": 1300000
+    },
+    {
+      "id": 32,
+      "name": "Adobe",
+      "generic": "Software Developer",
+      "price": 123
+    },
+    {
+      "id": 35,
+      "name": "ronan",
+      "generic": "Software Company",
+      "price": 1300000
+    }
+  ]
+}
