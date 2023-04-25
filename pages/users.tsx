@@ -1,4 +1,5 @@
-import clientPromise from "../lib/mongodb";
+import { GetServerSideProps } from 'next';
+import clientPromise from '../lib/mongodb';
 
 interface User {
   _id: number;
@@ -8,13 +9,23 @@ interface User {
   age: number;
 }
 
-export default function Users({ users }: { users: User[] }) {
+interface UsersPageProps {
+  users: User[];
+  errorMessage?: string;
+}
+
+export default function Users({ users, errorMessage }: UsersPageProps) {
+  if (errorMessage) {
+    return <div>{errorMessage}</div>;
+  }
+
   return (
     <div>
       {users.map((user) => (
         <div key={user._id}>
-        
-          <h4>Name: {user.firstname} <span>{user.lastname}</span></h4>
+          <h4>
+            Name: {user.firstname} <span>{user.lastname}</span>
+          </h4>
           <h4>Date of Birth: {user.dateofbirth}</h4>
           <h4>Age: {user.age}</h4>
         </div>
@@ -23,25 +34,28 @@ export default function Users({ users }: { users: User[] }) {
   );
 }
 
-export async function getServerSideProps() {
+export const getServerSideProps: GetServerSideProps<UsersPageProps> = async () => {
   try {
     const client = await clientPromise;
-    const db = client.db("my_database");
+    const db = client.db('my_database');
 
     const users = await db
-      .collection("users")
+      .collection<User>('users')
       .find({})
-      .sort({ metacritic: -1 })
+      .sort({ _id: -1 })
       .limit(20)
       .toArray();
 
     return {
-      props: { users: JSON.parse(JSON.stringify(users)) },
+      props: { users },
     };
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
     return {
-      props: { users: [] },
+      props: {
+        users: [],
+        errorMessage: 'Error retrieving users.',
+      },
     };
   }
-}
+};
