@@ -14,7 +14,7 @@ export default function Users({ users }: { users: User[] }) {
       {users.map((user) => (
         <div key={user._id}>
         
-          <h3>Name: {user.firstname} <span>{user.lastname}</span></h3>
+          <h4>Name: {user.firstname} <span>{user.lastname}</span></h4>
           <h4>Date of Birth: {user.dateofbirth}</h4>
           <h4>Age: {user.age}</h4>
         </div>
