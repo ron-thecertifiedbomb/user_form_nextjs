@@ -1,16 +1,16 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
-const multer = require('multer'); // Import the multer package
+const multer = require('multer');
 
 app.use(express.json());
 
 const cors = require('cors');
-app.use(express.json());
 app.use(cors());
 
-const mongoURI =
-  'mongodb+srv://Ronchiko:Mybabe0814@atlascluster.rjfmjfq.mongodb.net/my_cart_database?retryWrites=true&w=majority';
+const mongoURI='mongodb+srv://Ronchiko:Mybabe0814@atlascluster.rjfmjfq.mongodb.net/my_cart_database?retryWrites=true&w=majority';
+
+app.use('/uploads', express.static('uploads'));
 
 mongoose
   .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -26,7 +26,6 @@ const cartItemSchema = new mongoose.Schema({
 
 const CartItem = mongoose.model('CartItem', cartItemSchema, 'mycart');
 
-// Set up multer storage for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads'); // Specify the folder where uploaded files should be stored
@@ -40,30 +39,63 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Define API endpoints
 app.get('/api/mycart', async (req, res) => {
-  // Your existing code for GET request
+  try {
+    const cartItems = await CartItem.find();
+    res.json(cartItems);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
-// Use the upload middleware for the POST request to handle file upload
 app.post('/api/mycart', upload.single('photo'), async (req, res) => {
   try {
     const { name, price, quantity } = req.body;
-    const photo = req.file.filename; // Get the filename of the uploaded photo
-    const newItem = new CartItem({ name, price, quantity, photo });
+
+    if (typeof name !== 'string' || isNaN(parseFloat(price)) || isNaN(parseInt(quantity))) {
+      return res.status(400).json({ error: 'Invalid data format' });
+    }
+
+    const photo = req.file ? req.file.filename : '';
+    const newItem = new CartItem({ name, price: parseFloat(price), quantity: parseInt(quantity), photo });
     const savedItem = await newItem.save();
     res.status(201).json(savedItem);
+  } catch (err) {
+    console.error('Error creating cart item:', err); // Log the specific error
+    res.status(500).json({ error: 'Internal server error' }); // Return a 500 status code for internal server errors
+  }
+});
+
+
+app.put('/api/mycart/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, price, quantity } = req.body;
+    const updatedItem = await CartItem.findByIdAndUpdate(
+      id,
+      { name, price, quantity },
+      { new: true }
+    );
+    if (!updatedItem) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+    res.json(updatedItem);
   } catch (err) {
     res.status(400).json({ error: 'Bad request' });
   }
 });
 
-app.put('/api/mycart/:id', async (req, res) => {
-  // Your existing code for PUT request
-});
-
 app.delete('/api/mycart/:id', async (req, res) => {
-  // Your existing code for DELETE request
+  try {
+    const { id } = req.params;
+    const deletedItem = await CartItem.findByIdAndRemove(id);
+    if (!deletedItem) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+    res.sendStatus(204);
+  } catch (err) {
+    res.status(400).json({ error: 'Bad request' });
+  }
 });
 
 const PORT = 3001;
