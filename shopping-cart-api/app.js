@@ -1,33 +1,44 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
+const multer = require('multer');
 
 app.use(express.json());
 
-const cors = require('cors'); // Import the cors package
+const cors = require('cors');
+app.use(cors());
 
-app.use(express.json());
-app.use(cors()); // Use cors middleware
+const mongoURI='mongodb+srv://Ronchiko:Mybabe0814@atlascluster.rjfmjfq.mongodb.net/my_cart_database?retryWrites=true&w=majority';
 
-
-const mongoURI =
-  'mongodb+srv://Ronchiko:Mybabe0814@atlascluster.rjfmjfq.mongodb.net/my_cart_database?retryWrites=true&w=majority'; // Replace with your MongoDB connection URI
+app.use('/uploads', express.static('uploads'));
 
 mongoose
   .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('Error connecting to MongoDB:', err));
 
-// Define the schema and model for the cart items
 const cartItemSchema = new mongoose.Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
   quantity: { type: Number, required: true, default: 1 },
+  photo: { type: String }, // Add a new field to store the photo filename or URL
 });
 
-const CartItem = mongoose.model('CartItem', cartItemSchema, 'mycart'); // 'mycart' is the collection name
+const CartItem = mongoose.model('CartItem', cartItemSchema, 'mycart');
 
-// Define API endpoints
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads'); // Specify the folder where uploaded files should be stored
+  },
+  filename: function (req, file, cb) {
+    // Generate a unique filename for the uploaded file
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + '-' + file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
+
 app.get('/api/mycart', async (req, res) => {
   try {
     const cartItems = await CartItem.find();
@@ -37,16 +48,24 @@ app.get('/api/mycart', async (req, res) => {
   }
 });
 
-app.post('/api/mycart', async (req, res) => {
+app.post('/api/mycart', upload.single('photo'), async (req, res) => {
   try {
     const { name, price, quantity } = req.body;
-    const newItem = new CartItem({ name, price, quantity });
+
+    if (typeof name !== 'string' || isNaN(parseFloat(price)) || isNaN(parseInt(quantity))) {
+      return res.status(400).json({ error: 'Invalid data format' });
+    }
+
+    const photo = req.file ? req.file.filename : '';
+    const newItem = new CartItem({ name, price: parseFloat(price), quantity: parseInt(quantity), photo });
     const savedItem = await newItem.save();
     res.status(201).json(savedItem);
   } catch (err) {
-    res.status(400).json({ error: 'Bad request' });
+    console.error('Error creating cart item:', err); // Log the specific error
+    res.status(500).json({ error: 'Internal server error' }); // Return a 500 status code for internal server errors
   }
 });
+
 
 app.put('/api/mycart/:id', async (req, res) => {
   try {
