@@ -6,6 +6,9 @@ const mongoose = require('mongoose');
 const app = express();
 app.use(express.json());
 
+const cors = require("cors");
+app.use(cors());
+
 
 const mongoURI = "mongodb+srv://Ronchiko:Mybabe0814@atlascluster.rjfmjfq.mongodb.net/my_cart_database?retryWrites=true&w=majority";
 mongoose.connect(mongoURI, {

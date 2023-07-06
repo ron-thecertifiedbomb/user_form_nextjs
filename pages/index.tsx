@@ -1,69 +1,15 @@
 import React, { useEffect, useReducer } from "react";
 import AddToCartForm from "../components/AddToCart";
 import { CartItem } from "../types/types";
-
-interface CartState {
-  cartItems: CartItem[];
-  quantity: number[];
-}
-
-type CartAction =
-  | { type: "FETCH_CART_ITEMS"; payload: CartItem[] }
-  | { type: "DELETE_ITEM"; payload: string }
-  | { type: "ADD_QUANTITY"; payload: { index: number; maxQuantity: number } }
-  | { type: "SUBTRACT_QUANTITY"; payload: number }
-  | { type: "ADD_TO_CART"; payload: CartItem };
-
-const cartReducer = (state: CartState, action: CartAction): CartState => {
-  switch (action.type) {
-    case "FETCH_CART_ITEMS":
-      return {
-        ...state,
-        cartItems: action.payload,
-        quantity: action.payload.map(() => 1),
-      };
-    case "DELETE_ITEM":
-      return {
-        ...state,
-        cartItems: state.cartItems.filter(
-          (item) => item._id !== action.payload
-        ),
-        quantity: state.quantity.filter(
-          (_, index) =>
-            index !==
-            state.cartItems.findIndex((item) => item._id === action.payload)
-        ),
-      };
-    case "ADD_QUANTITY":
-      return {
-        ...state,
-        quantity: state.quantity.map((q, index) =>
-          index === action.payload.index
-            ? Math.min(q + 1, action.payload.maxQuantity)
-            : q
-        ),
-      };
-    case "SUBTRACT_QUANTITY":
-      return {
-        ...state,
-        quantity: state.quantity.map((q, index) =>
-          index === action.payload ? Math.max(q - 1, 1) : q
-        ),
-      };
-    default:
-      return state;
-  }
-};
+import { cartReducer, initialState } from "../reducers/cartReducer";
 
 const Cart: React.FC = () => {
-  const initialState: CartState = {
-    cartItems: [],
-    quantity: [],
-  };
 
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
+
   useEffect(() => {
+
     const fetchCartItems = async () => {
       try {
         const response = await fetch("http://localhost:3001/api/mycart");
@@ -80,6 +26,7 @@ const Cart: React.FC = () => {
 
     fetchCartItems();
   }, []);
+
 
   const handleDeleteItem = async (id: string) => {
     try {
@@ -105,7 +52,30 @@ const Cart: React.FC = () => {
     dispatch({ type: "SUBTRACT_QUANTITY", payload: index });
   };
 
-  console.log(state.cartItems);
+  const handleAddToCart = async (item: CartItem) => {
+    try {
+      const response = await fetch("http://localhost:3004/api/shopping_cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(item),
+      });
+
+      if (response.ok) {
+
+        alert("Item added to cart");
+      } else {
+ 
+        console.error("Failed to add item to cart");
+      }
+    } catch (error) {
+   
+      console.error("Network/server error:", error);
+    }
+  };
+  
+  console.log(state.cartItems)
 
   return (
     <div>
@@ -132,8 +102,9 @@ const Cart: React.FC = () => {
               <button onClick={() => handleAddQuantity(index, item.quantity)}>
                 +
               </button>
-              Quantity: {state.quantity[index]}
+              Quantity: {state.quantities[index]}
               <button onClick={() => handleSubtractQuantity(index)}>-</button>
+              <button onClick={() => handleAddToCart(item)}>Add to Cart</button>
             </div>
           </li>
         ))}
