@@ -7,6 +7,8 @@ app.use(express.json());
 const cors = require("cors");
 app.use(cors());
 
+app.use('/uploads', express.static('uploads'));
+
 const mongoURI =
   "mongodb+srv://Ronchiko:Mybabe0814@atlascluster.rjfmjfq.mongodb.net/my_cart_database?retryWrites=true&w=majority";
 mongoose
@@ -16,8 +18,8 @@ mongoose
   })
   .then(() => {
     console.log("Connected to MongoDB Atlas");
-    app.listen(3004, () => {
-      console.log("Server started on port 3004");
+    app.listen(5000, () => {
+      console.log("Server started on port 5000");
     });
   })
   .catch((error) => {
@@ -41,9 +43,8 @@ app.get("/api/shopping_cart", async (req, res) => {
   try {
     const cartItems = await CartItem.find();
     res.json(cartItems);
-  } catch (error) {
-    console.error("Failed to fetch cart items:", error);
-    res.status(500).json({ error: "Failed to fetch cart items" });
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -59,5 +60,21 @@ app.post("/api/shopping_cart", async (req, res) => {
   } catch (error) {
     console.error("Failed to save cart item:", error);
     res.status(500).json({ error: "Failed to save cart item" });
+  }
+});
+
+
+app.delete("/api/shopping_cart/:id", async (req, res) => {
+  const itemId = req.params.id;
+
+  try {
+    const deletedCartItem = await CartItem.findByIdAndDelete(itemId);
+    if (!deletedCartItem) {
+      return res.status(404).json({ error: "Cart item not found" });
+    }
+    res.json({ message: "Cart item deleted successfully" });
+  } catch (error) {
+    console.error("Failed to delete cart item:", error);
+    res.status(500).json({ error: "Failed to delete cart item" });
   }
 });

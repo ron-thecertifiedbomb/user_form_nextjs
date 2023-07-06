@@ -9,14 +9,19 @@ interface ProductCard {
 }
 
 const ProductCard: React.FC<ProductCard> = ({ state, dispatch }) => {
+
   useEffect(() => {
+
     const fetchCartItems = async () => {
       try {
         const response = await fetch("http://localhost:3001/api/mycart");
         if (response.ok) {
           const data = await response.json();
           dispatch({ type: "FETCH_CART_ITEMS", payload: data });
-        } else {
+        }
+        
+
+        else {
           console.error("Failed to fetch cart items");
         }
       } catch (error) {
@@ -53,7 +58,7 @@ const ProductCard: React.FC<ProductCard> = ({ state, dispatch }) => {
 
   const handleAddToCart = async (item: CartItem, quantity: number) => {
     try {
-      const response = await fetch("http://localhost:3004/api/shopping_cart", {
+      const response = await fetch("http://localhost:5000/api/shopping_cart", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,8 +80,6 @@ const ProductCard: React.FC<ProductCard> = ({ state, dispatch }) => {
       console.error("Network/server error:", error);
     }
   };
-
- 
 
   return (
     <div>
