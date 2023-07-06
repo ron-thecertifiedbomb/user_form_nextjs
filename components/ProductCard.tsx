@@ -66,6 +66,7 @@ const ProductCard: React.FC<ProductCard> = ({ state, dispatch }) => {
         body: JSON.stringify({
           name: item.name,
           price: item.price,
+          stock: item.quantity,
           quantity: quantity,
           photo: item.photo,
         }),

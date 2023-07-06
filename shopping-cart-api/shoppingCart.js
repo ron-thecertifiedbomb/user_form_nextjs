@@ -31,6 +31,7 @@ const cartItemSchema = new mongoose.Schema(
   {
     name: String,
     price: Number,
+    stock: Number,
     quantity: Number,
     photo: String,
   },
@@ -50,10 +51,10 @@ app.get("/api/shopping_cart", async (req, res) => {
 
 // API endpoint to add a cart item
 app.post("/api/shopping_cart", async (req, res) => {
-  const { name, price, quantity, photo } = req.body;
+  const { name, price, stock, quantity, photo } = req.body;
 
   try {
-    const cartItem = new CartItem({ name, price, quantity, photo });
+    const cartItem = new CartItem({ name, price, stock, quantity, photo });
     const savedCartItem = await cartItem.save();
 
     res.status(201).json(savedCartItem);
