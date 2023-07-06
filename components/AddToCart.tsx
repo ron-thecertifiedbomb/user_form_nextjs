@@ -1,70 +1,76 @@
-import React, { useState, useRef } from 'react';
-import { CartItem } from '../types/types'; // Adjust the import path based on your project structure
+import React, { useState, useRef } from "react";
 
-const AddToCartForm: React.FC = () => {
-  const [itemName, setItemName] = useState('');
-  const [itemPrice, setItemPrice] = useState('');
-  const [itemQuantity, setItemQuantity] = useState('');
+
+interface AddToCartFormProps {
+  dispatch: React.Dispatch<any>;
+}
+
+const AddToCartForm: React.FC<AddToCartFormProps> = ({ dispatch }) => {
+  const [itemName, setItemName] = useState("");
+  const [itemPrice, setItemPrice] = useState("");
+  const [itemQuantity, setItemQuantity] = useState("");
   const [itemPhoto, setItemPhoto] = useState<File | null>(null); // File object for the selected photo
-  const [priceError, setPriceError] = useState('');
-  const [quantityError, setQuantityError] = useState('');
+  const [priceError, setPriceError] = useState("");
+  const [quantityError, setQuantityError] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     const priceValue = parseFloat(itemPrice);
     const quantityValue = parseInt(itemQuantity);
-  
-    // Validate price and quantity
+
     if (isNaN(priceValue)) {
-      setPriceError('Please enter a valid numeric value for price.');
+      setPriceError("Please enter a valid numeric value for price.");
       return;
     } else {
-      setPriceError('');
+      setPriceError("");
     }
-  
+
     if (isNaN(quantityValue)) {
-      setQuantityError('Please enter a valid numeric value for quantity.');
+      setQuantityError("Please enter a valid numeric value for quantity.");
       return;
     } else {
-      setQuantityError('');
+      setQuantityError("");
     }
-  
-    // Create a new FormData object to send the data including the photo file
+
     const formData = new FormData();
-    formData.append('name', itemName);
-    formData.append('price', itemPrice);
-    formData.append('quantity', itemQuantity);
-    formData.append('photo', itemPhoto || ''); // Append the photo file if available or an empty string
-  
+    formData.append("name", itemName);
+    formData.append("price", itemPrice);
+    formData.append("quantity", itemQuantity);
+    formData.append("photo", itemPhoto || "");
+
     try {
-      const response = await fetch('http://localhost:3001/api/mycart', {
-        method: 'POST',
+      const response = await fetch("http://localhost:3001/api/mycart", {
+        method: "POST",
         body: formData,
       });
-  
+
       if (response.ok) {
-        // If the response is successful (status 200-299), add the item to the cart in the frontend
-        // ...
-        // Clear the form inputs after adding the item to the cart
-        setItemName('');
-        setItemPrice('');
-        setItemQuantity('');
+        const addedItem = await response.json();
+
+        // Dispatch an action to update the state with the added item
+        dispatch({ type: "ADD_TO_CART", payload: addedItem });
+
+        setItemName("");
+        setItemPrice("");
+        setItemQuantity("");
         setItemPhoto(null);
         if (fileInputRef.current) {
-          fileInputRef.current.value = '';
+          fileInputRef.current.value = "";
         }
-  
+      }
+
+      const updatedResponse = await fetch("http://localhost:3001/api/mycart");
+      if (updatedResponse.ok) {
+        const updatedData = await updatedResponse.json();
+        dispatch({ type: "FETCH_CART_ITEMS", payload: updatedData });
       } else {
-        // Handle the error response if needed
-        console.error('Failed to add item to cart');
+        console.error("Failed to add item to cart");
       }
     } catch (error) {
-      // Handle any network or server errors
-      console.error('Network/server error:', error);
+      console.error("Network/server error:", error);
     }
   };
   return (
@@ -86,7 +92,7 @@ const AddToCartForm: React.FC = () => {
           value={itemPrice}
           onChange={(e) => setItemPrice(e.target.value)}
         />
-          {priceError && <p className="error">{priceError}</p>}
+        {priceError && <p className="error">{priceError}</p>}
       </div>
       <div>
         <label htmlFor="quantity">Quantity:</label>
@@ -96,11 +102,16 @@ const AddToCartForm: React.FC = () => {
           value={itemQuantity}
           onChange={(e) => setItemQuantity(e.target.value)}
         />
-          {quantityError && <p className="error">{quantityError}</p>}
+        {quantityError && <p className="error">{quantityError}</p>}
       </div>
       <div>
         <label htmlFor="photo">Select Photo:</label>
-        <input type="file" id="photo" onChange={(e) => setItemPhoto(e.target.files?.[0] || null)} ref={fileInputRef}/>
+        <input
+          type="file"
+          id="photo"
+          onChange={(e) => setItemPhoto(e.target.files?.[0] || null)}
+          ref={fileInputRef}
+        />
       </div>
       <button type="submit">Add Product</button>
     </form>
