@@ -1,9 +1,9 @@
 import React, { useEffect, useReducer } from "react";
-import AddToCartForm from "../components/AddToCart";
+import AddProductForm from "../components/AddProductForm";
 import { CartItem } from "../types/types";
 import { cartReducer, initialState } from "../reducers/cartReducer";
 
-const Cart: React.FC = () => {
+const App: React.FC = () => {
 
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
@@ -52,26 +52,28 @@ const Cart: React.FC = () => {
     dispatch({ type: "SUBTRACT_QUANTITY", payload: index });
   };
 
-  const handleAddToCart = async (item: CartItem) => {
+  const handleAddToCart = async (item: CartItem, quantity: number) => {
     try {
-      const response = await fetch("http://localhost:3004/api/shopping_cart", {
-        method: "POST",
+      const response = await fetch('http://localhost:3004/api/shopping_cart', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(item),
+        body: JSON.stringify({
+          name: item.name,
+          price: item.price,
+          quantity: quantity,
+          photo: item.photo,
+        }),
       });
-
+  
       if (response.ok) {
-
-        alert("Item added to cart");
+      alert('added items to cart')
       } else {
- 
-        console.error("Failed to add item to cart");
+        console.error('Failed to add item to cart');
       }
     } catch (error) {
-   
-      console.error("Network/server error:", error);
+      console.error('Network/server error:', error);
     }
   };
   
@@ -80,7 +82,7 @@ const Cart: React.FC = () => {
   return (
     <div>
       <h2>Add Products</h2>
-      <AddToCartForm dispatch={dispatch} />
+      <AddProductForm dispatch={dispatch} />
 
       <ul>
         {state.cartItems.map((item, index) => (
@@ -102,9 +104,10 @@ const Cart: React.FC = () => {
               <button onClick={() => handleAddQuantity(index, item.quantity)}>
                 +
               </button>
-              Quantity: {state.quantities[index]}
+              No of orders: {state.quantity[index]}
               <button onClick={() => handleSubtractQuantity(index)}>-</button>
-              <button onClick={() => handleAddToCart(item)}>Add to Cart</button>
+             <button onClick={() => handleAddToCart(item, state.quantity[index])}>Add to Cart</button>
+
             </div>
           </li>
         ))}
@@ -113,4 +116,4 @@ const Cart: React.FC = () => {
   );
 };
 
-export default Cart;
+export default App;

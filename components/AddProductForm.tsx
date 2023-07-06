@@ -1,11 +1,11 @@
 import React, { useState, useRef } from "react";
 
 
-interface AddToCartFormProps {
+interface AddProductForm {
   dispatch: React.Dispatch<any>;
 }
 
-const AddToCartForm: React.FC<AddToCartFormProps> = ({ dispatch }) => {
+const AddProductForm: React.FC<AddProductForm> = ({ dispatch }) => {
   const [itemName, setItemName] = useState("");
   const [itemPrice, setItemPrice] = useState("");
   const [itemQuantity, setItemQuantity] = useState("");
@@ -118,4 +118,4 @@ const AddToCartForm: React.FC<AddToCartFormProps> = ({ dispatch }) => {
   );
 };
 
-export default AddToCartForm;
+export default AddProductForm;

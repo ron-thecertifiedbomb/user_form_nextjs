@@ -9,7 +9,8 @@ export interface CartItem {
   
  export interface CartState {
   cartItems: CartItem[];
-  quantities: number[];
+  quantity: number[];
+  
 }
 
 export type CartAction =
