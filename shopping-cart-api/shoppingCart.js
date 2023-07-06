@@ -1,10 +1,12 @@
 
-
 const express = require('express');
 const mongoose = require('mongoose');
 
 const app = express();
 app.use(express.json());
+
+const cors = require("cors");
+app.use(cors());
 
 
 const mongoURI = "mongodb+srv://Ronchiko:Mybabe0814@atlascluster.rjfmjfq.mongodb.net/my_cart_database?retryWrites=true&w=majority";
@@ -28,9 +30,9 @@ const cartItemSchema = new mongoose.Schema({
   price: Number,
   quantity: Number,
   photo: String,
-}, { collection: 'shopping_cart' }); // Specify the collection name as 'shopping_cart'
+}, { collection: 'shopping_cart' });
 
-// Create the cart item model
+
 const CartItem = mongoose.model('CartItem', cartItemSchema);
 
 // API endpoint to add a cart item
