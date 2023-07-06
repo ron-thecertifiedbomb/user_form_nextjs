@@ -1,5 +1,6 @@
 // types.ts
 export interface CartItem {
+    [x: string]: string | number | boolean | {} | ReactElement<any, string | JSXElementConstructor<any>> | ReactNodeArray | ReactPortal | null | undefined;
     name: string;
     price: number;
     quantity: number;
