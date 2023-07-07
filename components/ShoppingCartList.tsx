@@ -75,7 +75,7 @@ const ShoppingCartList = () => {
         <div key={item._id}>
           <p>Name: {item.name}</p>
           <p>Price: {item.price}</p>
-          <p>Stocks Available: {item.stock}</p>
+          {/* <p>Stocks Available: {item.stock}</p> */}
           <p>Quantity: {item.quantity}</p>
           <p>Item Total Price: ${item.price * item.quantity}</p>
           <div style={{ width: "200px" }}>

@@ -58,29 +58,55 @@ const ProductCard: React.FC<ProductCard> = ({ state, dispatch }) => {
 
   const handleAddToCart = async (item: CartItem, quantity: number) => {
     try {
-      const response = await fetch("http://localhost:5000/api/shopping_cart", {
-        method: "POST",
+      const index = state.cartItems.findIndex((cartItem) => cartItem._id === item._id);
+      if (index === -1) {
+        console.error("Cart item not found");
+        return;
+      }
+  
+      // Send a PUT request to update the quantity
+      const response = await fetch(`http://localhost:3001/api/mycart/${item._id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: item.name,
-          price: item.price,
-          stock: item.quantity,
-          quantity: quantity,
-          photo: item.photo,
+          quantity: item.quantity - quantity, // Subtract the selected quantity
         }),
       });
-
+  
       if (response.ok) {
-        alert("added items to cart");
+        // Send a POST request to add the item to the cart
+        const addToCartResponse = await fetch("http://localhost:5000/api/shopping_cart", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: item.name,
+            price: item.price,
+            stock: item.quantity,
+            quantity: state.quantity[index], // Use state.quantity[index] as the quantity value
+            photo: item.photo,
+          }),
+        });
+  
+        if (addToCartResponse.ok) {
+          alert("Added items to cart");
+        } else {
+          console.error("Failed to add item to cart");
+        }
       } else {
-        console.error("Failed to add item to cart");
+        console.error("Failed to update quantity");
       }
     } catch (error) {
       console.error("Network/server error:", error);
     }
   };
+  
+
+
+  
 
   return (
     <div>
@@ -107,11 +133,10 @@ const ProductCard: React.FC<ProductCard> = ({ state, dispatch }) => {
               </button>
               No of orders: {state.quantity[index]}
               <button onClick={() => handleSubtractQuantity(index)}>-</button>
-              <button
-                onClick={() => handleAddToCart(item, state.quantity[index])}
-              >
-                Add to Cart
-              </button>
+              <button onClick={() => handleAddToCart(item, state.quantity[index])}>
+  Add to Cart
+</button>
+
             </div>
           </li>
         ))}

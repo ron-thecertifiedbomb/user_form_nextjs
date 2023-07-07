@@ -1,17 +1,16 @@
-// types.ts
+import { ReactElement, ReactNodeArray, ReactPortal, JSXElementConstructor } from "react";
+
 export interface CartItem {
-    [x: string]: string | number | boolean | {} | ReactElement<any, string | JSXElementConstructor<any>> | ReactNodeArray | ReactPortal | null | undefined;
-    name: string;
-    price: number;
-    quantity: number;
-    _id: string;
-    photo: string;
-  }
-  
- export interface CartState {
+  name: string;
+  price: number;
+  quantity: number;
+  _id: string;
+  photo: string;
+}
+
+export interface CartState {
   cartItems: CartItem[];
   quantity: number[];
-  
 }
 
 export type CartAction =
@@ -21,3 +20,12 @@ export type CartAction =
   | { type: "SUBTRACT_QUANTITY"; payload: number }
   | { type: "ADD_TO_CART"; payload: CartItem };
 
+export interface UserProfile {
+  username: string;
+  firstname: string;
+  lastname: string;
+  dateofbirth: string;
+  address: string;
+  contactno: string;
+  email: string;
+}
