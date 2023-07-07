@@ -7,7 +7,7 @@ app.use(express.json());
 const cors = require("cors");
 app.use(cors());
 
-app.use('/uploads', express.static('uploads'));
+app.use("/uploads", express.static("uploads"));
 
 const mongoURI =
   "mongodb+srv://Ronchiko:Mybabe0814@atlascluster.rjfmjfq.mongodb.net/my_cart_database?retryWrites=true&w=majority";
@@ -26,11 +26,11 @@ mongoose
     console.error("Failed to connect to MongoDB Atlas:", error);
   });
 
-// Define the cart item schema
+
 const cartItemSchema = new mongoose.Schema(
   {
     name: String,
-    price: Number,
+    username: Number,
     stock: Number,
     quantity: Number,
     photo: String,
@@ -63,7 +63,6 @@ app.post("/api/shopping_cart", async (req, res) => {
     res.status(500).json({ error: "Failed to save cart item" });
   }
 });
-
 
 app.delete("/api/shopping_cart/:id", async (req, res) => {
   const itemId = req.params.id;
