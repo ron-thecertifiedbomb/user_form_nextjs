@@ -1,4 +1,3 @@
-import { ReactElement, ReactNodeArray, ReactPortal, JSXElementConstructor } from "react";
 
 export interface CartItem {
   name: string;
