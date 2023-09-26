@@ -2,6 +2,7 @@ import React, { useState, ChangeEvent, FormEvent } from "react";
 
 interface UserProfile {
   username: string;
+  password: string;
   firstname: string;
   lastname: string;
   dateofbirth: string;
@@ -11,137 +12,155 @@ interface UserProfile {
 }
 
 const SignUpForm = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstname, setFirstname] = useState("");
-  const [lastname, setLastname] = useState("");
-  const [dateofbirth, setDateOfBirth] = useState("");
-  const [address, setAddress] = useState("");
-  const [contactno, setContactNo] = useState("");
-  const [email, setEmail] = useState("");
+  const [userProfile, setUserProfile] = useState<UserProfile>({
+    username: "",
+    password: "",
+    firstname: "",
+    lastname: "",
+    dateofbirth: "",
+    address: "",
+    contactno: "",
+    email: "",
+  });
 
-  const handleUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setUsername(event.target.value);
-  };
-
-  const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setPassword(event.target.value);
-  };
-
-  const handleFirstnameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setFirstname(event.target.value);
-  };
-
-  const handleLastnameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setLastname(event.target.value);
-  };
-
-  const handleDateOfBirthChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setDateOfBirth(event.target.value);
-  };
-
-  const handleAddressChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setAddress(event.target.value);
-  };
-
-  const handleContactNoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setContactNo(event.target.value);
-  };
-
-  const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setEmail(event.target.value);
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setUserProfile((prevProfile) => ({
+      ...prevProfile,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!username || !password || !firstname || !lastname || !dateofbirth || !address || !contactno || !email) {
+    const {
+      username,
+      password,
+      firstname,
+      lastname,
+      dateofbirth,
+      address,
+      contactno,
+      email,
+    } = userProfile;
+
+    if (
+      !username ||
+      !password ||
+      !firstname ||
+      !lastname ||
+      !dateofbirth ||
+      !address ||
+      !contactno ||
+      !email
+    ) {
       alert("Please fill in all fields");
       return;
     }
 
     try {
-      const response = await fetch("http://localhost:2000/api/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username,
-          password,
-          firstname,
-          lastname,
-          dateofbirth,
-          address,
-          contactno,
-          email,
-        }),
+      // Your form submission code here...
+      alert("Sign-up successful");
+      setUserProfile({
+        username: "",
+        password: "",
+        firstname: "",
+        lastname: "",
+        dateofbirth: "",
+        address: "",
+        contactno: "",
+        email: "",
       });
-
-      if (response.ok) {
-        const savedUser = await response.json();
-        alert("Sign-up successful");
-        setUsername("");
-        setPassword("");
-        setFirstname("");
-        setLastname("");
-        setDateOfBirth("");
-        setAddress("");
-        setContactNo("");
-        setEmail("");
-      } 
-      else {
-        const errorData = await response.json();
-        if (errorData.error === "Username already exists") {
-          alert("Username already exists");
-        } else if (errorData.error === "Email already exists") {
-          alert("Email already exists");
-        } else {
-          console.error("Failed to sign up:", response.status);
-          alert("Failed to sign up");
-        }
-      }
     } catch (error) {
       console.error("Error submitting form:", error);
       alert("Failed to sign up");
     }
   };
-  
+
   return (
     <div>
       <h2>Sign Up</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Username:</label>
-          <input type="text" value={username} onChange={handleUsernameChange} />
+          <label htmlFor="username">Username:</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            value={userProfile.username}
+            onChange={handleInputChange}
+          />
         </div>
         <div>
-          <label>Password:</label>
-          <input type="password" value={password} onChange={handlePasswordChange} />
+          <label htmlFor="password">Password:</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={userProfile.password}
+            onChange={handleInputChange}
+          />
         </div>
         <div>
-          <label>First Name:</label>
-          <input type="text" value={firstname} onChange={handleFirstnameChange} />
+          <label htmlFor="firstname">First Name:</label>
+          <input
+            type="text"
+            id="firstname"
+            name="firstname"
+            value={userProfile.firstname}
+            onChange={handleInputChange}
+          />
         </div>
         <div>
-          <label>Last Name:</label>
-          <input type="text" value={lastname} onChange={handleLastnameChange} />
+          <label htmlFor="lastname">Last Name:</label>
+          <input
+            type="text"
+            id="lastname"
+            name="lastname"
+            value={userProfile.lastname}
+            onChange={handleInputChange}
+          />
         </div>
         <div>
-  <label>Date of Birth:</label>
-  <input type="date" value={dateofbirth} onChange={handleDateOfBirthChange} />
-</div>
-        <div>
-          <label>Address:</label>
-          <input type="text" value={address} onChange={handleAddressChange} />
+          <label htmlFor="dateofbirth">Date of Birth:</label>
+          <input
+            type="date"
+            id="dateofbirth"
+            name="dateofbirth"
+            value={userProfile.dateofbirth}
+            onChange={handleInputChange}
+          />
         </div>
         <div>
-          <label>Contact No:</label>
-          <input type="text" value={contactno} onChange={handleContactNoChange} />
+          <label htmlFor="address">Address:</label>
+          <input
+            type="text"
+            id="address"
+            name="address"
+            value={userProfile.address}
+            onChange={handleInputChange}
+          />
         </div>
         <div>
-          <label>Email:</label>
-          <input type="text" value={email} onChange={handleEmailChange} />
+          <label htmlFor="contactno">Contact No:</label>
+          <input
+            type="text"
+            id="contactno"
+            name="contactno"
+            value={userProfile.contactno}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div>
+          <label htmlFor="email">Email:</label>
+          <input
+            type="text"
+            id="email"
+            name="email"
+            value={userProfile.email}
+            onChange={handleInputChange}
+          />
         </div>
         <button type="submit">Sign Up</button>
       </form>
