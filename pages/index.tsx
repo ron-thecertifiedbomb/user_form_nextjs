@@ -6,13 +6,13 @@ import SignUpForm from "../components/SignUpForm";
 
 
 const App: React.FC = () => {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
+  // const [state, dispatch] = useReducer(cartReducer, initialState);
 
   return (
     <div >
-{/* <SignUpForm /> */}
+<SignUpForm />
       {/* <LoginForm /> */}
-      <AddProductForm dispatch={dispatch} />
+      {/* <AddProductForm dispatch={dispatch} /> */}
     </div>
   );
 };
